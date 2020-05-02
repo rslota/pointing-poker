@@ -1,8 +1,9 @@
 defmodule PointingPokerWeb.RoomController do
   use PointingPokerWeb, :controller
+  import Phoenix.LiveView.Controller
 
   def create(conn, _params) do
-    room_id = Base.encode64(:crypto.strong_rand_bytes(18))
+    {:ok, room_id} = PointingPoker.Room.new_room()
     # Create the room
     redirect(conn, to: "/room/#{room_id}")
   end

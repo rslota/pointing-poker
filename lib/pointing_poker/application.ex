@@ -14,7 +14,9 @@ defmodule PointingPoker.Application do
       # Start the PubSub system
       {Phoenix.PubSub, name: PointingPoker.PubSub},
       # Start the Endpoint (http/https)
-      PointingPokerWeb.Endpoint
+      PointingPokerWeb.Endpoint,
+      PointingPoker.Room.Supervisor,
+      {Registry, keys: :unique, name: Registry.Rooms},
       # Start a worker by calling: PointingPoker.Worker.start_link(arg)
       # {PointingPoker.Worker, arg}
     ]
