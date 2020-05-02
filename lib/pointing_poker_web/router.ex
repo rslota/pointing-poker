@@ -19,7 +19,7 @@ defmodule PointingPokerWeb.Router do
 
     get "/", HomeController, :index
     post "/room", RoomController, :create
-    # live "/", PageLive, :index
+    live "/room/:room_id", RoomLive
   end
 
   # Other scopes may use custom stacks.
