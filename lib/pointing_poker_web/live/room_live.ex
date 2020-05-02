@@ -37,8 +37,16 @@ defmodule PointingPokerWeb.RoomLive do
 
   @impl true
   def handle_event("join", %{"username" => username}, socket) do
-    user_id = PointingPoker.Room.join(Map.get(socket.assigns, :room_pid), username)
-    {:noreply, assign(socket, user_id: user_id)}
+    room_pid = Map.get(socket.assigns, :room_pid)
+    user_id = PointingPoker.Room.join(room_pid, username)
+    {:noreply, assign(socket, user_id: user_id, username: username)}
+  end
+
+  def handle_event("vote", %{"value" => value}, socket) do
+    room_pid = Map.get(socket.assigns, :room_pid)
+    user_id = Map.get(socket.assigns, :user_id)
+    :ok = PointingPoker.Room.vote(room_pid, user_id, value)
+    {:noreply, socket}
   end
 
   def handle_event(_event, _data, socket) do
