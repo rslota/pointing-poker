@@ -16,7 +16,8 @@ defmodule PointingPokerWeb.RoomLive do
           enabled_values: @enabled_values,
           members: [],
           room_pid: pid,
-          user_id: nil
+          user_id: nil,
+          show_votes: false
         )}
     end
   end
@@ -49,12 +50,34 @@ defmodule PointingPokerWeb.RoomLive do
     {:noreply, socket}
   end
 
+  def handle_event("clear", %{}, socket) do
+    room_pid = Map.get(socket.assigns, :room_pid)
+    user_id = Map.get(socket.assigns, :user_id)
+    :ok = PointingPoker.Room.clear_votes(room_pid, user_id)
+    :ok = PointingPoker.Room.show_votes(room_pid, user_id, false)
+    {:noreply, socket}
+  end
+
+  def handle_event("show", %{}, socket) do
+    room_pid = Map.get(socket.assigns, :room_pid)
+    user_id = Map.get(socket.assigns, :user_id)
+    :ok = PointingPoker.Room.show_votes(room_pid, user_id, true)
+    {:noreply, socket}
+  end
+
+  def handle_event("hide", %{}, socket) do
+    room_pid = Map.get(socket.assigns, :room_pid)
+    user_id = Map.get(socket.assigns, :user_id)
+    :ok = PointingPoker.Room.show_votes(room_pid, user_id, false)
+    {:noreply, socket}
+  end
+
   def handle_event(_event, _data, socket) do
     IO.inspect({_event, _data})
     {:noreply, socket}
   end
 
-  def handle_info({:members, members}, socket) do
-    {:noreply, assign(socket, members: members)}
+  def handle_info(%{members: members, show_votes: show_votes}, socket) do
+    {:noreply, assign(socket, members: members, show_votes: show_votes)}
   end
 end

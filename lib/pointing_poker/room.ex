@@ -18,6 +18,14 @@ defmodule PointingPoker.Room do
     GenServer.cast(pid, {:vote, user_id, value})
   end
 
+  def clear_votes(pid, user_id) do
+    GenServer.cast(pid, {:clear_votes, user_id})
+  end
+
+  def show_votes(pid, user_id, show_votes) do
+    GenServer.cast(pid, {:show_votes, user_id, show_votes})
+  end
+
   def start_link(room_id) do
     GenServer.start_link(__MODULE__, room_id, name: {:via, Registry, {Registry.Rooms, room_id, nil}})
   end
@@ -26,7 +34,8 @@ defmodule PointingPoker.Room do
   def init(room_id) do
     {:ok, %{
       id: room_id,
-      members: %{}
+      members: %{},
+      show_votes: false
     }}
   end
 
@@ -36,7 +45,7 @@ defmodule PointingPoker.Room do
     member = %Member{id: user_id, name: username, pid: member_pid}
     Process.monitor(member_pid)
     new_state = update_in(state.members, & Map.put(&1, user_id, member))
-    bcast_members(new_state)
+    bcast_room(new_state)
     {:reply, user_id, new_state}
   end
 
@@ -45,8 +54,25 @@ defmodule PointingPoker.Room do
     new_state = update_in(state, [:members, user_id, :vote], fn _vote ->
       value
     end)
-    IO.inspect(new_state)
-    bcast_members(new_state)
+    bcast_room(new_state)
+    {:noreply, new_state}
+  end
+
+  @impl GenServer
+  def handle_cast({:show_votes, user_id, show_votes}, state) do
+    new_state = %{state | show_votes: show_votes}
+    bcast_room(new_state)
+    {:noreply, new_state}
+  end
+
+  @impl GenServer
+  def handle_cast({:clear_votes, user_id}, state) do
+    new_state = update_in(state.members, fn members ->
+      members
+      |> Enum.map(fn {id, member} -> {id, %Member{member | vote: nil}} end)
+      |> Map.new()
+    end)
+    bcast_room(new_state)
     {:noreply, new_state}
   end
 
@@ -57,13 +83,17 @@ defmodule PointingPoker.Room do
       |> Enum.filter(fn {_, member} -> Process.alive?(member.pid) end)
       |> Map.new()
     end)
-    bcast_members(new_state)
+    bcast_room(new_state)
     {:noreply, new_state}
   end
 
-  def bcast_members(state) do
+  def bcast_room(state) do
     Enum.each(state.members, fn {_, member} ->
-      send(member.pid, {:members, Map.values(state.members)})
+      send(member.pid,
+        %{
+          members: Map.values(state.members),
+          show_votes: state.show_votes
+        })
     end)
   end
 end

@@ -1,25 +1,18 @@
 <div class="row">
-  <div class="col-sm-2">
-    <h3>Welcome to the room!</h3>
-    <p><%= @room_id %></p>
-  </div>
   <div class="col-sm-4">
-    <h3>My name</h3>
-    <p><%= @username %></p>
-  </div>
-</div>
-
-<div class="row">
-  <div class="col-sm-2">
-    <h3>Vote:</h3>
+    <p>My name: <b><%= @username %></b></p>
     <div class="btn-group-vertical">
-    <%= for row <- Enum.chunk_every(@enabled_values, 3) do %>
       <div class="btn-group">
-      <%= for value <- row do %>
-        <button phx-click="vote" value="<%= value %>" class="btn btn-primary"><%= value %></button>
-      <%= end %>
+        <button phx-click="clear" class="btn btn-danger">Clear votes</button>
+        <button phx-click="show" class="btn btn-success">Show votes</button>
       </div>
-    <%= end %>
+      <%= for row <- Enum.chunk_every(@enabled_values, 3) do %>
+        <div class="btn-group">
+        <%= for value <- row do %>
+          <button phx-click="vote" value="<%= value %>" class="btn btn-primary"><%= value %></button>
+        <%= end %>
+        </div>
+      <%= end %>
     </div>
   </div>
   <div class="col-sm-4">
@@ -27,10 +20,19 @@
     <%= for member <- @members do %>
     <div class="row">
       <div class="col-sm-4">
-        <p><%= member.name %></p>
+        <p>
+          <%= member.name %>
+          <%= if member.vote do %>
+          &#10003;
+          <%= end %>
+        </p>
       </div>
       <div class="col-sm-2">
+        <%= if @show_votes do %>
         <p><%= member.vote %></p>
+        <%= else %>
+        <span>&#9632;</span>
+        <%= end %>
       </div>
     </div>
     <%= end %>

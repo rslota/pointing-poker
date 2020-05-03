@@ -11,9 +11,12 @@
   </head>
   <body>
     <div class="jumbotron text-center">
-      <h1>PointingPoker</h1>
+      <h1>Pointing Poker</h1>
+      <%= if Map.get(assigns, :room_id) do %>
+      <p class="">Room: <b><%= @room_id %></b></p>
+      <%= end %>
     </div>
-    <div class="container">
+    <div class="container-fluid">
     <%= @inner_content %>
     </div>
   </body>

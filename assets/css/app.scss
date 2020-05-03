@@ -3,6 +3,10 @@
 @import "../node_modules/nprogress/nprogress.css";
 @import "~bootstrap/scss/bootstrap";
 
+html {
+  font-size: 14pt;
+}
+
 /* LiveView specific classes for your customizations */
 .invalid-feedback {
   color: #a94442;
