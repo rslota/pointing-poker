@@ -10,8 +10,8 @@ defmodule PointingPoker.Room do
     {:ok, room_id}
   end
 
-  def join(pid, username) do
-    GenServer.call(pid, {:join, username, self()})
+  def join(pid, username, type) do
+    GenServer.call(pid, {:join, username, type, self()})
   end
 
   def vote(pid, user_id, value) do
@@ -42,13 +42,18 @@ defmodule PointingPoker.Room do
   end
 
   @impl GenServer
-  def handle_call({:join, username, member_pid}, _from, state) do
-    user_id = Base.encode64(:crypto.strong_rand_bytes(18))
-    member = %Member{id: user_id, name: username, pid: member_pid}
-    Process.monitor(member_pid)
-    new_state = update_in(state.members, & Map.put(&1, user_id, member))
-    bcast_room(new_state)
-    {:reply, user_id, new_state}
+  def handle_call({:join, username, type, member_pid}, _from, state) do
+    with user_id = Base.encode64(:crypto.strong_rand_bytes(18)),
+      true <- Enum.member?([:voter, :observer], type),
+      member = %Member{id: user_id, name: username, pid: member_pid, type: type} do
+
+      Process.monitor(member_pid)
+      new_state = update_in(state.members, & Map.put(&1, user_id, member))
+      bcast_room(new_state)
+      {:reply, member, new_state}
+    else
+      false -> {:error, :invalid_type}
+    end
   end
 
   @impl GenServer
@@ -98,7 +103,8 @@ defmodule PointingPoker.Room do
         %{
           members: Map.values(state.members),
           show_votes: state.show_votes,
-          stats: stats
+          stats: stats,
+          me: member
         })
     end)
   end

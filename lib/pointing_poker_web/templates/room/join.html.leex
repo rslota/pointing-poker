@@ -1,9 +1,28 @@
+<form phx-submit="join" method="post">
+<input type="hidden" name="_csrf_token" value="<%= Plug.CSRFProtection.get_csrf_token() %>">
 <div class="row">
-    <form phx-submit="join">
-      <input type="hidden" name="_csrf_token" value="<%= Plug.CSRFProtection.get_csrf_token() %>">
-      <div class="input-group">
-      <input class="form-control" type="text" name="username" placeholder="Your name">
-      <button type="submit" class="btn btn-primary">Join now!</button>
-      </div>
-    </form>
+  <div class="col-sm-3">
+    Name:
+  </div>
+  <div class="col-sm-8 d-flex justify-content-center">
+    <input class="form-control" type="text" name="username" placeholder="Your name">
+  </div>
 </div>
+<div class="row">
+  <div class="col-sm-3">
+    Member type:
+  </div>
+  <div class="col-sm-3 d-flex justify-content-center">
+    <select name="type" class="form-control form-control-lg">
+      <option value="voter">Voter</option>
+      <option value="observer">Observer</option>
+    </select>
+  </div>
+</div>
+<p/>
+<div class="row">
+  <div class="col-sm-3 d-flex justify-content-center">
+    <button type="submit" class="btn btn-primary">Join session</button>
+  </div>
+</div>
+</form>

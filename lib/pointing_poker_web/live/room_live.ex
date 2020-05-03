@@ -18,7 +18,8 @@ defmodule PointingPokerWeb.RoomLive do
           members: [],
           room_pid: pid,
           user_id: nil,
-          show_votes: false
+          show_votes: false,
+          me: nil
         )}
     end
   end
@@ -29,7 +30,7 @@ defmodule PointingPokerWeb.RoomLive do
     """
   end
 
-  def render(%{user_id: nil} = assigns) do
+  def render(%{me: nil} = assigns) do
     Phoenix.View.render(PointingPokerWeb.RoomView, "join.html", assigns)
   end
 
@@ -38,10 +39,11 @@ defmodule PointingPokerWeb.RoomLive do
   end
 
   @impl true
-  def handle_event("join", %{"username" => username}, socket) do
+  def handle_event("join", %{"username" => username, "type" => type} = data, socket) do
+    IO.inspect data
     room_pid = Map.get(socket.assigns, :room_pid)
-    user_id = PointingPoker.Room.join(room_pid, username)
-    {:noreply, assign(socket, user_id: user_id, username: username)}
+    member = PointingPoker.Room.join(room_pid, username, String.to_existing_atom(type))
+    {:noreply, assign(socket, me: member)}
   end
 
   def handle_event("vote", %{"value" => value}, socket) do
@@ -78,10 +80,11 @@ defmodule PointingPokerWeb.RoomLive do
     {:noreply, socket}
   end
 
-  def handle_info(%{members: members, show_votes: show_votes, stats: stats}, socket) do
+  def handle_info(%{members: members, show_votes: show_votes, stats: stats, me: me}, socket) do
     {:noreply, assign(socket,
       members: members,
       show_votes: show_votes,
+      me: me,
       stats: %{
         vote_count: stats.vote_count,
         time_taken:

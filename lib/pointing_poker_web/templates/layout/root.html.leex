@@ -13,7 +13,7 @@
     <div class="jumbotron text-center">
       <h1>Pointing Poker</h1>
       <%= if Map.get(assigns, :room_id) do %>
-      <p class="">Room: <b><%= @room_id %></b></p>
+      Room: <b><%= @room_id %></b><a href="/"><span class="fas fa-clock"></span></a>
       <%= end %>
     </div>
     <div class="container-fluid">
