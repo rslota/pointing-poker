@@ -1,17 +1,21 @@
 defmodule PointingPoker.Room do
   use GenServer
 
-  alias PointingPoker.Room.Member
+  alias PointingPoker.Room.{Member, Config}
 
-  def new_room(enabled_values) do
-    room_id = Base.encode16(:crypto.strong_rand_bytes(18))
-    {:ok, _pid} = DynamicSupervisor.start_child(PointingPoker.Room.Supervisor, {__MODULE__, [room_id, enabled_values]})
+  def new_room(enabled_values, manager_type) do
+    room_id = Base.encode16(:crypto.strong_rand_bytes(6))
+    {:ok, _pid} = DynamicSupervisor.start_child(PointingPoker.Room.Supervisor, {__MODULE__, [room_id, enabled_values, manager_type]})
 
     {:ok, room_id}
   end
 
   def join(pid, username, type) do
     GenServer.call(pid, {:join, username, type, self()})
+  end
+
+  def get_config(pid) do
+    GenServer.call(pid, :get_config)
   end
 
   def vote(pid, user_id, value) do
@@ -26,19 +30,34 @@ defmodule PointingPoker.Room do
     GenServer.cast(pid, {:show_votes, user_id, show_votes})
   end
 
-  def start_link([room_id, enabled_values]) do
-    GenServer.start_link(__MODULE__, room_id, name: {:via, Registry, {Registry.Rooms, room_id, enabled_values}})
+  def start_link([room_id, enabled_values, manager_type]) do
+    opts = %{
+      room_id: room_id,
+      enabled_values: enabled_values,
+      manager_type: manager_type
+    }
+    GenServer.start_link(__MODULE__, opts, name: {:via, Registry, {Registry.Rooms, opts.room_id, nil}})
   end
 
   @impl GenServer
-  def init(room_id) do
+  def init(opts) do
     {:ok, %{
-      id: room_id,
+      config: %Config{
+        id: opts.room_id,
+        enabled_values: opts.enabled_values,
+        manager_type: opts.manager_type,
+        pid: self()
+      },
       members: %{},
       show_votes: false,
       clear_time: DateTime.utc_now(),
       show_time: DateTime.utc_now(),
     }}
+  end
+
+  @impl GenServer
+  def handle_call(:get_config, _from, state) do
+    {:reply, state.config, state}
   end
 
   @impl GenServer
@@ -67,22 +86,30 @@ defmodule PointingPoker.Room do
 
   @impl GenServer
   def handle_cast({:show_votes, user_id, show_votes}, state) do
-    new_state = %{state | show_votes: show_votes, show_time: DateTime.utc_now()}
-    bcast_room(new_state)
-    {:noreply, new_state}
+    if state.config.manager_type == :voter || state.members[user_id].type == :observer do
+      new_state = %{state | show_votes: show_votes, show_time: DateTime.utc_now()}
+      bcast_room(new_state)
+      {:noreply, new_state}
+    else
+      {:noreply, state}
+    end
   end
 
   @impl GenServer
   def handle_cast({:clear_votes, user_id}, state) do
-    new_state =
-      update_in(state.members, fn members ->
-        members
-        |> Enum.map(fn {id, member} -> {id, %Member{member | vote: nil}} end)
-        |> Map.new()
-      end)
-    new_state = %{new_state | clear_time: DateTime.utc_now()}
-    bcast_room(new_state)
-    {:noreply, new_state}
+    if state.config.manager_type == :voter || state.members[user_id].type == :observer do
+      new_state =
+        update_in(state.members, fn members ->
+          members
+          |> Enum.map(fn {id, member} -> {id, %Member{member | vote: nil}} end)
+          |> Map.new()
+        end)
+      new_state = %{new_state | clear_time: DateTime.utc_now()}
+      bcast_room(new_state)
+      {:noreply, new_state}
+    else
+      {:noreply, state}
+    end
   end
 
   @impl GenServer
@@ -113,14 +140,10 @@ defmodule PointingPoker.Room do
     integer_votes =
       state.members
       |> Map.values()
-      |> Enum.map(& &1.vote || "")
-      |> Enum.filter(fn vote ->
-        case Integer.parse(vote, 10) do
-          {int, ""} when is_integer(int) -> true
-          _ -> false
-        end
+      |> Enum.map(fn member  ->
+        PointingPoker.Room.Utils.to_number(member.vote || "")
       end)
-      |> Enum.map(& String.to_integer(&1))
+      |> Enum.filter(& &1 != :error)
 
 
     %{

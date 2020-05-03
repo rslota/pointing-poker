@@ -2,29 +2,25 @@ defmodule PointingPokerWeb.RoomLive do
   use PointingPokerWeb, :live_view
   use Timex
 
-  @enabled_values ["1", "2", "3", "5", "8", "11", "19", "30", "?"]
-
   @impl true
   def mount(params, session, socket) do
     # Check if room exists
     room_id = Map.get(params, "room_id")
     case Registry.lookup(Registry.Rooms, room_id) do
       [] ->
-        {:ok, assign(socket, room_id: nil)}
-      [{pid, enabled_values}] ->
+        {:ok, assign(socket, room_config: nil)}
+      [{pid, _}] ->
+        room_config = PointingPoker.Room.get_config(pid)
         {:ok, assign(socket,
-          room_id: room_id,
-          enabled_values: enabled_values ++ ["?"],
+          room_config: room_config,
           members: [],
-          room_pid: pid,
-          user_id: nil,
           show_votes: false,
           me: nil
         )}
     end
   end
 
-  def render(%{room_id: nil} = assigns) do
+  def render(%{room_config: nil} = assigns) do
     ~L"""
     Room not found!
     """
@@ -40,37 +36,37 @@ defmodule PointingPokerWeb.RoomLive do
 
   @impl true
   def handle_event("join", %{"username" => username, "type" => type} = data, socket) do
-    IO.inspect data
-    room_pid = Map.get(socket.assigns, :room_pid)
+    room_pid = socket.assigns[:room_config].pid
     member = PointingPoker.Room.join(room_pid, username, String.to_existing_atom(type))
     {:noreply, assign(socket, me: member)}
   end
 
   def handle_event("vote", %{"value" => value}, socket) do
-    room_pid = Map.get(socket.assigns, :room_pid)
-    user_id = Map.get(socket.assigns, :user_id)
+    room_pid = socket.assigns[:room_config].pid
+    user_id = socket.assigns[:me].id
+    IO.inspect {room_pid, user_id, value}
     :ok = PointingPoker.Room.vote(room_pid, user_id, value)
     {:noreply, socket}
   end
 
   def handle_event("clear", %{}, socket) do
-    room_pid = Map.get(socket.assigns, :room_pid)
-    user_id = Map.get(socket.assigns, :user_id)
+    room_pid = socket.assigns[:room_config].pid
+    user_id = socket.assigns[:me].id
     :ok = PointingPoker.Room.clear_votes(room_pid, user_id)
     :ok = PointingPoker.Room.show_votes(room_pid, user_id, false)
     {:noreply, socket}
   end
 
   def handle_event("show", %{}, socket) do
-    room_pid = Map.get(socket.assigns, :room_pid)
-    user_id = Map.get(socket.assigns, :user_id)
+    room_pid = socket.assigns[:room_config].pid
+    user_id = socket.assigns[:me].id
     :ok = PointingPoker.Room.show_votes(room_pid, user_id, true)
     {:noreply, socket}
   end
 
   def handle_event("hide", %{}, socket) do
-    room_pid = Map.get(socket.assigns, :room_pid)
-    user_id = Map.get(socket.assigns, :user_id)
+    room_pid = socket.assigns[:room_config].pid
+    user_id = socket.assigns[:me].id
     :ok = PointingPoker.Room.show_votes(room_pid, user_id, false)
     {:noreply, socket}
   end

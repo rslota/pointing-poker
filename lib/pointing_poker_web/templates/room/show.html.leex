@@ -2,12 +2,14 @@
   <div class="col-sm-4">
     <p>My name: <b><%= @me.name %></b></p>
     <div class="btn-group-vertical">
+    <%= if @me.type == :observer || @room_config.manager_type == :voter do %>
       <div class="btn-group">
         <button phx-click="clear" class="btn btn-danger">Clear votes</button>
         <button phx-click="show" class="btn btn-success">Show votes</button>
       </div>
+    <%= end %>
       <%= if @me.type == :voter do %>
-      <%= for row <- Enum.chunk_every(@enabled_values, 3) do %>
+      <%= for row <- Enum.chunk_every(@room_config.enabled_values ++ ["?"], 3) do %>
         <div class="btn-group">
         <%= for value <- row do %>
           <button phx-click="vote" value="<%= value %>" class="btn btn-primary"><%= value %></button>
