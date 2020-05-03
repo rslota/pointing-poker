@@ -11,6 +11,7 @@ defmodule PointingPokerWeb.RoomLive do
         {:ok, assign(socket, room_config: nil)}
       [{pid, _}] ->
         room_config = PointingPoker.Room.get_config(pid)
+        Process.monitor(pid)
         {:ok, assign(socket,
           room_config: room_config,
           members: [],
@@ -22,7 +23,7 @@ defmodule PointingPokerWeb.RoomLive do
 
   def render(%{room_config: nil} = assigns) do
     ~L"""
-    Room not found!
+    Room not found! <a href="/">Go back</a>
     """
   end
 
@@ -74,6 +75,16 @@ defmodule PointingPokerWeb.RoomLive do
   def handle_event(_event, _data, socket) do
     IO.inspect({_event, _data})
     {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({:DOWN, _ref, :process, pid, _reason}, socket) do
+    case pid == socket.assigns.room_config.pid do
+      true ->
+        {:noreply, assign(socket, room_config: nil)}
+      false ->
+        {:noreply, socket}
+    end
   end
 
   def handle_info(%{members: members, show_votes: show_votes, stats: stats, me: me}, socket) do
