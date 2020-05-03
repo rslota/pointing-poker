@@ -16,26 +16,90 @@
     </div>
   </div>
   <div class="col-sm-4">
-    <h3>Members:</h3>
+    <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th class="text-center">Ready?</th>
+        <th class="text-center">Vote</th>
+      </tr>
+    </thead>
+    <tbody>
     <%= for member <- @members do %>
-    <div class="row">
-      <div class="col-sm-4">
-        <p>
-          <%= member.name %>
-          <%= if member.vote do %>
-          &#10003;
-          <%= end %>
-        </p>
-      </div>
-      <div class="col-sm-2">
+    <tr>
+      <td>
+        <%= member.name %>
+      </td>
+      <td class="text-center">
+        <%= if member.vote do %>
+        &#10003;
+        <%= end %>
+      </td>
+      <td class="text-center">
         <%= if @show_votes do %>
-        <p><%= member.vote %></p>
+        <b><%= member.vote %></b>
         <%= else %>
         <span>&#9632;</span>
         <%= end %>
+      </td>
+    </tr>
+    <%= end %>
+    </table>
+  </div>
+  <div class="col-sm-4">
+  <%= if @show_votes do %>
+    <div class="row">
+      <div class="col-sm-4">
+        <h5>Statistics</h5>
       </div>
     </div>
+    <div class="row">
+      <div class="col-sm-4">
+        <b>Time taken:</b>
+      </div>
+      <div class="col-sm-8">
+        <%= @stats.time_taken %>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-4">
+        <b>Average:</b>
+      </div>
+      <div class="col-sm-8">
+        <%= @stats.average_vote %>
+      </div>
+    </div>
+    <div class="row">
+    <div class="col-sm-12">
+    <%= if Map.size(@stats.vote_count) == 1 do %>
+      <div class="col-sm-12 text-center"><span class="text-success font-weight-bold">Consensus!</span></div>
+    <%= else %>
+      <%= if Map.size(@stats.vote_count) > 1 do %>
+      <table class="table-sm table-striped">
+        <thead>
+          <tr>
+            <th>Points</th>
+            <th>Count</th>
+          </tr>
+        </thead>
+        <tbody>
+        <%= for {vote, count} <- @stats.vote_count do %>
+        <tr>
+          <td>
+            <b><%= vote %></b>
+          </td>
+          <td>
+            <%= count %>
+          </td>
+        </tr>
+        <%= end %>
+        </tbody>
+      </table>
+      </div>
+      <%= end %>
     <%= end %>
+    </div>
+  <%= end %>
   </div>
 </div>
 

@@ -1,5 +1,6 @@
 defmodule PointingPokerWeb.RoomLive do
   use PointingPokerWeb, :live_view
+  use Timex
 
   @enabled_values ["1", "2", "3", "5", "8", "11", "19", "30", "?"]
 
@@ -10,10 +11,10 @@ defmodule PointingPokerWeb.RoomLive do
     case Registry.lookup(Registry.Rooms, room_id) do
       [] ->
         {:ok, assign(socket, room_id: nil)}
-      [{pid, _}] ->
+      [{pid, enabled_values}] ->
         {:ok, assign(socket,
           room_id: room_id,
-          enabled_values: @enabled_values,
+          enabled_values: enabled_values ++ ["?"],
           members: [],
           room_pid: pid,
           user_id: nil,
@@ -77,7 +78,23 @@ defmodule PointingPokerWeb.RoomLive do
     {:noreply, socket}
   end
 
-  def handle_info(%{members: members, show_votes: show_votes}, socket) do
-    {:noreply, assign(socket, members: members, show_votes: show_votes)}
+  def handle_info(%{members: members, show_votes: show_votes, stats: stats}, socket) do
+    {:noreply, assign(socket,
+      members: members,
+      show_votes: show_votes,
+      stats: %{
+        vote_count: stats.vote_count,
+        time_taken:
+          stats.time_taken
+          |> Duration.from_seconds()
+          |> Timex.format_duration(:humanized),
+        average_vote:
+          if stats.average_vote >= 0 do
+            stats.average_vote
+          else
+            ":("
+          end
+      }
+    )}
   end
 end

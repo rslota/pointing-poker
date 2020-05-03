@@ -1,0 +1,30 @@
+
+
+<form action="/room" method="post" phx-change="change">
+<div class="row">
+  <div class="col-sm-8">
+    <input type="hidden" name="_csrf_token" value="<%= Plug.CSRFProtection.get_csrf_token() %>">
+    <div class="btn-group">
+    <button type="submit" class="btn btn-success">Create new room!</button>
+    <button phx-click="add_value" type="button" class="btn btn-primary">Add new value</button>
+    </div>
+  </div>
+</div>
+<p/>
+<p/>
+<%= for row <- Enum.chunk_every(Enum.with_index(@enabled_values), 3) do %>
+<div class="row">
+  <%= for {value, index} <- row do %>
+  <div class="col-sm-2">
+  <div class="input-group">
+    <input name="value_<%= index %>" type="number" value="<%= value %>" class="form-control"/>
+    <button type="button" class="btn btn-danger" phx-click="del" value="<%= index %>">X</button>
+  </div>
+  <p/>
+  </div>
+  <%= end %>
+  </div>
+  <%= end %>
+
+</div>
+</form>
