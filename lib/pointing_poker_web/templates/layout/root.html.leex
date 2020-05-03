@@ -14,7 +14,7 @@
       <h1>Pointing Poker</h1>
       <%= if Map.get(assigns, :room_id) do %>
       Room: <b><%= @room_id %></b><a href="/"><span class="fas fa-clock"></span></a>
-      <%= end %>
+      <% end %>
     </div>
     <div class="container-fluid">
     <%= @inner_content %>

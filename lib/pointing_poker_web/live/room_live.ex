@@ -45,7 +45,7 @@ defmodule PointingPokerWeb.RoomLive do
   def handle_event("vote", %{"value" => value}, socket) do
     room_pid = socket.assigns[:room_config].pid
     user_id = socket.assigns[:me].id
-    IO.inspect {room_pid, user_id, value}
+
     :ok = PointingPoker.Room.vote(room_pid, user_id, value)
     {:noreply, socket}
   end

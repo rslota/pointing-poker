@@ -7,16 +7,16 @@
         <button phx-click="clear" class="btn btn-danger">Clear votes</button>
         <button phx-click="show" class="btn btn-success">Show votes</button>
       </div>
-    <%= end %>
+    <% end %>
       <%= if @me.type == :voter do %>
       <%= for row <- Enum.chunk_every(@room_config.enabled_values ++ ["?"], 3) do %>
         <div class="btn-group">
         <%= for value <- row do %>
           <button phx-click="vote" value="<%= value %>" class="btn btn-primary"><%= value %></button>
-        <%= end %>
+        <% end %>
         </div>
-      <%= end %>
-      <%= end %>
+      <% end %>
+      <% end %>
     </div>
   </div>
   <div class="col-sm-4">
@@ -38,18 +38,18 @@
       <td class="text-center">
         <%= if member.vote do %>
         &#10003;
-        <%= end %>
+        <% end %>
       </td>
       <td class="text-center">
         <%= if @show_votes do %>
         <b><%= member.vote %></b>
         <%= else %>
         <span>&#9632;</span>
-        <%= end %>
+        <% end %>
       </td>
     </tr>
-    <%= end %>
-    <%= end %>
+    <% end %>
+    <% end %>
     </table>
   </div>
   <div class="col-sm-4">
@@ -98,14 +98,14 @@
             <%= count %>
           </td>
         </tr>
-        <%= end %>
+        <% end %>
         </tbody>
       </table>
       </div>
-      <%= end %>
-    <%= end %>
+      <% end %>
+    <% end %>
     </div>
-  <%= end %>
+  <% end %>
   </div>
 </div>
 

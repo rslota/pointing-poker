@@ -34,7 +34,7 @@ defmodule PointingPokerWeb.HomeLive do
       |> Enum.reduce([], fn {key, value}, acc ->
         [value | acc]
       end)
-    IO.inspect(Enum.reverse(enabled_values))
+
     {:noreply, assign(socket, enabled_values: Enum.reverse(enabled_values))}
   end
 
