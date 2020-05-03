@@ -8,7 +8,7 @@ defmodule PointingPoker.Application do
   def start(_type, _args) do
     children = [
       # Start the Ecto repository
-      PointingPoker.Repo,
+      # PointingPoker.Repo,
       # Start the Telemetry supervisor
       PointingPokerWeb.Telemetry,
       # Start the PubSub system
