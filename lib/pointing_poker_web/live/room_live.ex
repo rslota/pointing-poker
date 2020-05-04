@@ -6,12 +6,11 @@ defmodule PointingPokerWeb.RoomLive do
   def mount(params, session, socket) do
     # Check if room exists
     room_id = Map.get(params, "room_id")
-    case Registry.lookup(Registry.Rooms, room_id) do
-      [] ->
+    case PointingPoker.Room.find_room(room_id) do
+      {:error, :not_found} ->
         {:ok, assign(socket, room_config: nil)}
-      [{pid, _}] ->
-        room_config = PointingPoker.Room.get_config(pid)
-        Process.monitor(pid)
+      {:ok, room_config} ->
+        Process.monitor(room_config.pid)
         {:ok, assign(socket,
           room_config: room_config,
           members: [],

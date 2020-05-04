@@ -7,9 +7,21 @@ defmodule PointingPoker.Room do
 
   def new_room(enabled_values, manager_type) do
     room_id = Base.encode16(:crypto.strong_rand_bytes(6))
-    {:ok, _pid} = DynamicSupervisor.start_child(PointingPoker.Room.Supervisor, {__MODULE__, [room_id, enabled_values, manager_type]})
+    {:ok, _pid} =
+      DynamicSupervisor.start_child(PointingPoker.Room.Supervisor,
+        {__MODULE__, [room_id, enabled_values, manager_type]})
 
     {:ok, room_id}
+  end
+
+  def find_room(room_id) do
+    case :syn.whereis(room_id) do
+      :undefined ->
+        {:error, :not_found}
+      pid ->
+        room_config = get_config(pid)
+        {:ok, room_config}
+    end
   end
 
   def join(pid, username, type) do
@@ -38,7 +50,7 @@ defmodule PointingPoker.Room do
       enabled_values: enabled_values,
       manager_type: manager_type
     }
-    GenServer.start_link(__MODULE__, opts, name: {:via, Registry, {Registry.Rooms, opts.room_id, nil}})
+    GenServer.start_link(__MODULE__, opts, name: {:via, :syn, opts.room_id})
   end
 
   @impl GenServer
