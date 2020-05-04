@@ -95,6 +95,8 @@ RUN chown -R app /app
 USER app
 
 EXPOSE 4000
+EXPOSE 45892/udp
+EXPOSE 4369-4370
 
 HEALTHCHECK --interval=30s --timeout=30s --retries=3 --start-period=5s \
         CMD curl --silent localhost:4000/ || exit 1

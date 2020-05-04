@@ -16,7 +16,8 @@ defmodule PointingPoker.Application do
       # Start the Endpoint (http/https)
       PointingPokerWeb.Endpoint,
       PointingPoker.Room.Supervisor,
-      {Registry, keys: :unique, name: Registry.Rooms}
+      {Registry, keys: :unique, name: Registry.Rooms},
+      {Cluster.Supervisor, [cluster_config(), [name: PointingPoker.ClusterSupervisor]]},
       # Start a worker by calling: PointingPoker.Worker.start_link(arg)
       # {PointingPoker.Worker, arg}
     ]
@@ -32,5 +33,19 @@ defmodule PointingPoker.Application do
   def config_change(changed, _new, removed) do
     PointingPokerWeb.Endpoint.config_change(changed, removed)
     :ok
+  end
+
+  defp cluster_config() do
+    [
+      gossip: [
+        strategy: Cluster.Strategy.Gossip,
+        config: [
+          port: 45892,
+          if_addr: "0.0.0.0",
+          multicast_addr: "230.1.1.251",
+          multicast_ttl: 1
+        ]
+      ]
+    ]
   end
 end

@@ -10,3 +10,6 @@ config :pointing_poker, PointingPokerWeb.Endpoint,
 
 # Do not print debug messages in production
 config :logger, level: :info
+
+config :libcluster,
+  debug: false
