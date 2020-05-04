@@ -5,9 +5,7 @@ defmodule PointingPokerWeb.HomeLive do
 
   @impl true
   def mount(params, session, socket) do
-    {:ok, assign(socket,
-      enabled_values: @default_values,
-    )}
+    {:ok, assign(socket, enabled_values: @default_values)}
   end
 
   def render(assigns) do

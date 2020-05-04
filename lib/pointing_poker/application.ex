@@ -16,7 +16,7 @@ defmodule PointingPoker.Application do
       # Start the Endpoint (http/https)
       PointingPokerWeb.Endpoint,
       PointingPoker.Room.Supervisor,
-      {Registry, keys: :unique, name: Registry.Rooms},
+      {Registry, keys: :unique, name: Registry.Rooms}
       # Start a worker by calling: PointingPoker.Worker.start_link(arg)
       # {PointingPoker.Worker, arg}
     ]

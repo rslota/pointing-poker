@@ -3,13 +3,16 @@ defmodule PointingPoker.Room do
 
   alias PointingPoker.Room.{Member, Config}
 
-  @shutdown_time 60*60*1000
+  @shutdown_time 60 * 60 * 1000
 
   def new_room(enabled_values, manager_type) do
     room_id = Base.encode16(:crypto.strong_rand_bytes(6))
+
     {:ok, _pid} =
-      DynamicSupervisor.start_child(PointingPoker.Room.Supervisor,
-        {__MODULE__, [room_id, enabled_values, manager_type]})
+      DynamicSupervisor.start_child(
+        PointingPoker.Room.Supervisor,
+        {__MODULE__, [room_id, enabled_values, manager_type]}
+      )
 
     {:ok, room_id}
   end
@@ -18,6 +21,7 @@ defmodule PointingPoker.Room do
     case :syn.whereis(room_id) do
       :undefined ->
         {:error, :not_found}
+
       pid ->
         room_config = get_config(pid)
         {:ok, room_config}
@@ -50,23 +54,25 @@ defmodule PointingPoker.Room do
       enabled_values: enabled_values,
       manager_type: manager_type
     }
+
     GenServer.start_link(__MODULE__, opts, name: {:via, :syn, opts.room_id})
   end
 
   @impl GenServer
   def init(opts) do
-    {:ok, %{
-      config: %Config{
-        id: opts.room_id,
-        enabled_values: opts.enabled_values,
-        manager_type: opts.manager_type,
-        pid: self()
-      },
-      members: %{},
-      show_votes: false,
-      clear_time: DateTime.utc_now(),
-      show_time: DateTime.utc_now(),
-    }, @shutdown_time}
+    {:ok,
+     %{
+       config: %Config{
+         id: opts.room_id,
+         enabled_values: opts.enabled_values,
+         manager_type: opts.manager_type,
+         pid: self()
+       },
+       members: %{},
+       show_votes: false,
+       clear_time: DateTime.utc_now(),
+       show_time: DateTime.utc_now()
+     }, @shutdown_time}
   end
 
   @impl GenServer
@@ -77,11 +83,10 @@ defmodule PointingPoker.Room do
   @impl GenServer
   def handle_call({:join, username, type, member_pid}, _from, state) do
     with user_id = Base.encode64(:crypto.strong_rand_bytes(18)),
-      true <- Enum.member?([:voter, :observer], type),
-      member = %Member{id: user_id, name: username, pid: member_pid, type: type} do
-
+         true <- Enum.member?([:voter, :observer], type),
+         member = %Member{id: user_id, name: username, pid: member_pid, type: type} do
       Process.monitor(member_pid)
-      new_state = update_in(state.members, & Map.put(&1, user_id, member))
+      new_state = update_in(state.members, &Map.put(&1, user_id, member))
       bcast_room(new_state)
       {:reply, member, new_state, @shutdown_time}
     else
@@ -91,9 +96,11 @@ defmodule PointingPoker.Room do
 
   @impl GenServer
   def handle_cast({:vote, user_id, value}, state) do
-    new_state = update_in(state, [:members, user_id, :vote], fn _vote ->
-      value
-    end)
+    new_state =
+      update_in(state, [:members, user_id, :vote], fn _vote ->
+        value
+      end)
+
     bcast_room(new_state)
     {:noreply, new_state, @shutdown_time}
   end
@@ -118,6 +125,7 @@ defmodule PointingPoker.Room do
           |> Enum.map(fn {id, member} -> {id, %Member{member | vote: nil}} end)
           |> Map.new()
         end)
+
       new_state = %{new_state | clear_time: DateTime.utc_now()}
       bcast_room(new_state)
       {:noreply, new_state, @shutdown_time}
@@ -133,25 +141,30 @@ defmodule PointingPoker.Room do
 
   @impl GenServer
   def handle_info({:DOWN, _ref, :process, _pid, _reason}, state) do
-    new_state = update_in(state.members, fn members ->
-      members
-      |> Enum.filter(fn {_, member} -> Process.alive?(member.pid) end)
-      |> Map.new()
-    end)
+    new_state =
+      update_in(state.members, fn members ->
+        members
+        |> Enum.filter(fn {_, member} -> Process.alive?(member.pid) end)
+        |> Map.new()
+      end)
+
     bcast_room(new_state)
     {:noreply, new_state, @shutdown_time}
   end
 
   def bcast_room(state) do
     stats = gen_stats(state)
+
     Enum.each(state.members, fn {_, member} ->
-      send(member.pid,
+      send(
+        member.pid,
         %{
           members: Map.values(state.members),
           show_votes: state.show_votes,
           stats: stats,
           me: member
-        })
+        }
+      )
     end)
   end
 
@@ -159,11 +172,10 @@ defmodule PointingPoker.Room do
     integer_votes =
       state.members
       |> Map.values()
-      |> Enum.map(fn member  ->
+      |> Enum.map(fn member ->
         PointingPoker.Room.Utils.to_number(member.vote || "")
       end)
-      |> Enum.filter(& &1 != :error)
-
+      |> Enum.filter(&(&1 != :error))
 
     %{
       vote_count:
@@ -172,10 +184,11 @@ defmodule PointingPoker.Room do
         |> Enum.map(& &1.vote)
         |> Enum.filter(& &1)
         |> Enum.frequencies(),
-      time_taken: DateTime.diff(
-        Map.get(state, :show_time, DateTime.utc_now()),
-        Map.get(state, :clear_time, DateTime.utc_now())
-      ),
+      time_taken:
+        DateTime.diff(
+          Map.get(state, :show_time, DateTime.utc_now()),
+          Map.get(state, :clear_time, DateTime.utc_now())
+        ),
       average_vote:
         if length(integer_votes) > 0 do
           Enum.sum(integer_votes) / length(integer_votes)

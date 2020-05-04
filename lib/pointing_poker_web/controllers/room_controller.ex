@@ -9,7 +9,7 @@ defmodule PointingPokerWeb.RoomController do
       |> Enum.map(fn {_key, value} ->
         PointingPoker.Room.Utils.to_number(value)
       end)
-      |> Enum.filter(& &1 != :error)
+      |> Enum.filter(&(&1 != :error))
       |> Enum.sort()
       |> Enum.uniq()
 

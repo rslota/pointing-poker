@@ -6,17 +6,21 @@ defmodule PointingPokerWeb.RoomLive do
   def mount(params, session, socket) do
     # Check if room exists
     room_id = Map.get(params, "room_id")
+
     case PointingPoker.Room.find_room(room_id) do
       {:error, :not_found} ->
         {:ok, assign(socket, room_config: nil)}
+
       {:ok, room_config} ->
         Process.monitor(room_config.pid)
-        {:ok, assign(socket,
-          room_config: room_config,
-          members: [],
-          show_votes: false,
-          me: nil
-        )}
+
+        {:ok,
+         assign(socket,
+           room_config: room_config,
+           members: [],
+           show_votes: false,
+           me: nil
+         )}
     end
   end
 
@@ -81,29 +85,31 @@ defmodule PointingPokerWeb.RoomLive do
     case pid == socket.assigns.room_config.pid do
       true ->
         {:noreply, assign(socket, room_config: nil)}
+
       false ->
         {:noreply, socket}
     end
   end
 
   def handle_info(%{members: members, show_votes: show_votes, stats: stats, me: me}, socket) do
-    {:noreply, assign(socket,
-      members: members,
-      show_votes: show_votes,
-      me: me,
-      stats: %{
-        vote_count: stats.vote_count,
-        time_taken:
-          stats.time_taken
-          |> Duration.from_seconds()
-          |> Timex.format_duration(:humanized),
-        average_vote:
-          if stats.average_vote >= 0 do
-            stats.average_vote
-          else
-            ":("
-          end
-      }
-    )}
+    {:noreply,
+     assign(socket,
+       members: members,
+       show_votes: show_votes,
+       me: me,
+       stats: %{
+         vote_count: stats.vote_count,
+         time_taken:
+           stats.time_taken
+           |> Duration.from_seconds()
+           |> Timex.format_duration(:humanized),
+         average_vote:
+           if stats.average_vote >= 0 do
+             stats.average_vote
+           else
+             ":("
+           end
+       }
+     )}
   end
 end
