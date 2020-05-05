@@ -1,19 +1,20 @@
 <div class="row">
-  <div class="col-sm-8">
+  <div class="col-sm-5">
     <form action="/room" method="post" phx-change="change">
     <input type="hidden" name="_csrf_token" value="<%= Plug.CSRFProtection.get_csrf_token() %>">
-    <div class="row">
-      <div class="col-sm-6  d-flex justify-content-center">
-        <button type="submit" class="btn btn-success">Create new room!</button>
+    <div class="row d-flex justify-content-center">
+      <div class="col-sm-6 d-flex justify-content-center">
+        <button type="submit" class="btn btn-success">Create new session!</button>
       </div>
     </div>
-    <div class="row">
+    <br/><br/>
+    <div class="row d-flex justify-content-center">
       <div class="col-sm-6 text-center">
         <h4>Options</h4>
       </div>
     </div>
-    <div class="row">
-      <div class="col-sm-6">
+    <div class="row justify-content-center">
+      <div class="col-sm-10">
         <select name="manager_type" class="form-control form-control-lg">
           <option value="voter">Everybody can show/reset votes</option>
           <option value="observer">Only observers can show/reset votes</option>
@@ -21,17 +22,17 @@
       </div>
     </div>
     </p>
-    <div class="row">
+    <div class="row d-flex justify-content-center text-center">
       <div class="col-sm-12">
       <h5>Available vote points:</h5>
       </div>
     </div>
-    <div class="row">
+    <div class="row d-flex justify-content-center text-center">
       <div class="col-sm-12">
         <%= for row <- Enum.chunk_every(Enum.with_index(@enabled_values ++ [:add]), 3) do %>
-          <div class="row">
+          <div class="row d-flex justify-content-center">
             <%= for {value, index} <- row do %>
-              <div class="col-sm-2">
+              <div class="col-sm-4">
                 <%= if value == :add do %>
                   <button phx-click="add_value" type="button" class="btn btn-primary">+</button>
                 <%= else %>
@@ -47,10 +48,20 @@
         <% end %>
       </div>
     </div>
-    </div>
     </form>
   </div>
-  <div class="col-sm-4">
-
+  <div class="col-sm-1">
+  <div class="vertical-divider"><div class="center-element">OR</div></div>
+  </div>
+  <div class="col-sm-5">
+    <div class="row d-flex justify-content-center">
+      <form phx-submit="join">
+      <input type="hidden" name="_csrf_token" value="<%= Plug.CSRFProtection.get_csrf_token() %>">
+        <div class="input-group">
+          <input name="room_id" type="text" value="" class="form-control form-control-sm" placeholder="Enter the session ID"/>
+          <button type="submit" class="btn btn-primary btn-sm">Join the session!</button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>

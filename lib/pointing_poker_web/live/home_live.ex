@@ -36,6 +36,17 @@ defmodule PointingPokerWeb.HomeLive do
     {:noreply, assign(socket, enabled_values: Enum.reverse(enabled_values))}
   end
 
+  def handle_event("join", data, socket) do
+    IO.inspect {:join, data}
+    room_id = data["room_id"]
+    case PointingPoker.Room.find_room(room_id) do
+      {:error, :not_found} ->
+        {:noreply, put_flash(socket, :error, "Session '#{room_id}' does not exist!")}
+      {:ok, config} ->
+        {:noreply, redirect(socket, to: "/room/#{config.id}")}
+    end
+  end
+
   def handle_event(_event, _data, socket) do
     IO.inspect({_event, _data})
     {:noreply, socket}
