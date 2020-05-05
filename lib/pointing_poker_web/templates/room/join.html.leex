@@ -1,28 +1,38 @@
 <form phx-submit="join" method="post">
 <input type="hidden" name="_csrf_token" value="<%= Plug.CSRFProtection.get_csrf_token() %>">
 <div class="row">
-  <div class="col-sm-3">
-    Name:
-  </div>
-  <div class="col-sm-8 d-flex justify-content-center">
-    <input class="form-control" type="text" name="username" placeholder="Your name">
+  <div class="col-sm-6 d-flex justify-content-center">
+    <div class="input-group input-group-lg">
+      <div class="input-group-prepend">
+        <span class="input-group-text" id="basic-addon1">Name</span>
+      </div>
+      <input class="form-control" type="text" name="username" placeholder="Severus Snape">
+    </div>
   </div>
 </div>
+<br/>
 <div class="row">
-  <div class="col-sm-3">
-    Member type:
-  </div>
-  <div class="col-sm-3 d-flex justify-content-center">
-    <select name="type" class="form-control form-control-lg">
-      <option value="voter">Voter</option>
-      <option value="observer">Observer</option>
-    </select>
+  <div class="col-sm-4 d-flex justify-content-center">
+    <div class="input-group input-group-lg">
+      <div class="input-group-prepend">
+        <button type="submit" class="btn btn-lg btn-outline-success">Join session</button>
+      </div>
+      <div class="input-group-prepend">
+        <label class="input-group-text" for="inputGroupSelect01">as</label>
+      </div>
+
+       <select name="type" class="custom-select" id="inputGroupSelect01">
+        <option value="voter">voter</option>
+        <option value="observer">observer</option>
+      </select>
+    </div>
+
   </div>
 </div>
 <p/>
 <div class="row">
-  <div class="col-sm-3 d-flex justify-content-center">
-    <button type="submit" class="btn btn-primary">Join session</button>
+  <div class="col-sm-6 d-flex justify-content-center">
+
   </div>
 </div>
 </form>

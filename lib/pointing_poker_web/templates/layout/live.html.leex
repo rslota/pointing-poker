@@ -1,3 +1,25 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <a class="navbar-brand" href="#">PointingPoker</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+    <div class="navbar-nav">
+      <a class="nav-item nav-link active" href="/">Home <span class="sr-only">(current)</span></a>
+      <a class="nav-item nav-link disabled" href="#">Statistics</a>
+    </div>
+  </div>
+  <span class="navbar-text">
+    <%= if Map.get(assigns, :room_config) do %>
+    Session ID: <b><%= @room_config.id %></b>
+    <% end %>
+    <br/>
+    <%= if Map.get(assigns, :me) do %>
+    My name: <b><%= @me.name %></b>
+    <% end %>
+  </span>
+</nav>
+<div class="p-5"/>
 <main role="main" class="container">
   <p class="alert alert-info" role="alert"
     phx-click="lv:clear-flash"

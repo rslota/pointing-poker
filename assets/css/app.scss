@@ -1,67 +1,13 @@
 /* This file is for your main application css. */
-@import "./phoenix.css";
+// @import "./phoenix.css";
 @import "../node_modules/nprogress/nprogress.css";
+@import "./themes/flaty.scss";
 @import "~bootstrap/scss/bootstrap";
 
-html {
-  font-size: 12pt;
-}
-
-.vertical-divider {
-	position: absolute;
-	display: table;
-	text-align: center;
-
-	height: 100%; // CHANGE ME!
-	width: 100%;
-
-	.center-element {
-		position: relative;
-		display: table-cell;
-		vertical-align: middle;
-
-		&:before, &:after {
-			position: absolute;
-			content: "";
-			width: 1px;
-			left: 50%;
-			border-left: 1px solid black;
-		}
-		&:before {
-			bottom: 50%;
-			top: 0;
-			margin-bottom: 20px;
-		}
-		&:after {
-			top: 50%;
-			bottom: 0;
-			margin-top: 20px;
-		}
-	}
-}
-
-
-/* LiveView specific classes for your customizations */
-.invalid-feedback {
-  color: #a94442;
-  display: block;
-  margin: -1rem 0 2rem;
-}
-
-.phx-no-feedback.invalid-feedback, .phx-no-feedback .invalid-feedback {
-  display: none;
-}
-
-.phx-click-loading {
-  opacity: 0.5;
-  transition: opacity 1s ease-out;
-}
-
-.phx-disconnected{
-  cursor: wait;
-}
-.phx-disconnected *{
-  pointer-events: none;
+.custom-select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
 }
 
 .phx-modal {
