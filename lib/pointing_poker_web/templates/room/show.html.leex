@@ -1,88 +1,103 @@
-<div class="row">
-  <div class="col-sm-4">
-  </div>
-  <div class="col-sm-4 d-flex justify-content-center">
-    <%= if @me.type == :observer || @room_config.manager_type == :voter do %>
-      <div class="btn-group btn-group-lg">
-        <button phx-click="clear" class="btn btn-danger">Clear votes</button>
-        <button phx-click="show" class="btn btn-success">Show votes</button>
-      </div>
-    <% end %>
-  </div>
-  <div class="col-sm-4"></div>
-</div>
-<br/>
-<div class="row">
-  <div class="col-sm-4 d-flex justify-content-center">
-    <div class="btn-group-vertical">
-      <%= if @me.type == :voter do %>
-      <%= for row <- Enum.chunk_every(@room_config.enabled_values ++ ["?"], 3) do %>
+<div class="row"><div class="col-sm-7">
+  <div class="row">
+    <div class="col-sm-5">
+    </div>
+    <div class="col-sm-7 d-flex justify-content-center">
+      <%= if @me.type == :observer || @room_config.manager_type == :voter do %>
         <div class="btn-group btn-group-lg">
-        <%= for value <- row do %>
-          <button phx-click="vote" value="<%= value %>" class="btn btn-primary"><%= value %></button>
-        <% end %>
+          <button phx-click="clear" class="btn btn-danger">Clear votes</button>
+          <button phx-click="show" class="btn btn-success">Show votes</button>
         </div>
       <% end %>
-      <% end %>
     </div>
   </div>
-  <div class="col-sm-4">
-    <table class="table table-striped">
-    <thead>
+  <br/>
+  <div class="row">
+    <div class="col-sm-5 d-flex justify-content-center">
+      <div class="btn-group-vertical">
+        <%= if @me.type == :voter do %>
+        <%= for row <- Enum.chunk_every(@room_config.enabled_values ++ ["?"], 3) do %>
+          <div class="btn-group btn-group-lg">
+          <%= for value <- row do %>
+            <button phx-click="vote" value="<%= value %>" class="btn btn-primary"><%= value %></button>
+          <% end %>
+          </div>
+        <% end %>
+        <% end %>
+      </div>
+    </div>
+    <div class="col-sm-7">
+      <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th class="text-center">Ready?</th>
+          <th class="text-center">Vote</th>
+        </tr>
+      </thead>
+      <tbody>
+      <%= for member <- @members do %>
+      <%= if member.type == :voter do %>
       <tr>
-        <th>Name</th>
-        <th class="text-center">Ready?</th>
-        <th class="text-center">Vote</th>
+        <td>
+          <%= member.name %>
+        </td>
+        <td class="text-center">
+          <%= if member.vote do %>
+          &#10003;
+          <% end %>
+        </td>
+        <td class="text-center">
+          <%= if @show_votes do %>
+          <b><%= member.vote %></b>
+          <%= else %>
+          <span>&#9632;</span>
+          <% end %>
+        </td>
       </tr>
-    </thead>
-    <tbody>
-    <%= for member <- @members do %>
-    <%= if member.type == :voter do %>
-    <tr>
-      <td>
-        <%= member.name %>
-      </td>
-      <td class="text-center">
-        <%= if member.vote do %>
-        &#10003;
-        <% end %>
-      </td>
-      <td class="text-center">
-        <%= if @show_votes do %>
-        <b><%= member.vote %></b>
-        <%= else %>
-        <span>&#9632;</span>
-        <% end %>
-      </td>
-    </tr>
-    <% end %>
-    <% end %>
-    </table>
+      <% end %>
+      <% end %>
+      </table>
+    </div>
   </div>
-  <div class="col-sm-4">
+</div>
+
+<div class="col-sm-5">
+  <div class="row">
+    <div class="col-sm-12 form-group">
+      <label for="comment">Comment:</label>
+      <form phx-change="comment">
+      <%= if @me.type == :observer || @room_config.manager_type == :voter do %>
+        <textarea class="form-control" rows="5" name="comment"><%= @comment %></textarea>
+      <% else %>
+        <textarea class="form-control" rows="5" name="comment" readonly><%= @comment %></textarea>
+      <% end %>
+      </form>
+    </div>
+  </div>
   <%= if @show_votes do %>
-    <div class="row">
-      <div class="col-sm-4">
-        <h5>Statistics</h5>
-      </div>
+  <div class="row">
+    <div class="col-sm-4">
+      <h5>Statistics</h5>
     </div>
-    <div class="row">
-      <div class="col-sm-4">
-        <b>Time taken:</b>
-      </div>
-      <div class="col-sm-8">
-        <%= @stats.time_taken %>
-      </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-4">
+      <b>Time taken:</b>
     </div>
-    <div class="row">
-      <div class="col-sm-4">
-        <b>Average:</b>
-      </div>
-      <div class="col-sm-8">
-        <%= @stats.average_vote %>
-      </div>
+    <div class="col-sm-8">
+      <%= @stats.time_taken %>
     </div>
-    <div class="row">
+  </div>
+  <div class="row">
+    <div class="col-sm-4">
+      <b>Average:</b>
+    </div>
+    <div class="col-sm-8">
+      <%= @stats.average_vote %>
+    </div>
+  </div>
+  <div class="row">
     <div class="col-sm-12">
     <%= if Map.size(@stats.vote_count) == 1 do %>
       <div class="col-sm-12 text-center"><span class="text-success font-weight-bold">Consensus!</span></div>
@@ -111,9 +126,7 @@
       </div>
       <% end %>
     <% end %>
-    </div>
-  <% end %>
   </div>
+  <% end %>
 </div>
-
-
+</div>

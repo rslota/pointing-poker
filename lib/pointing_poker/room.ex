@@ -40,6 +40,10 @@ defmodule PointingPoker.Room do
     GenServer.cast(pid, {:vote, user_id, value})
   end
 
+  def comment(pid, user_id, value) do
+    GenServer.cast(pid, {:comment, user_id, value})
+  end
+
   def clear_votes(pid, user_id) do
     GenServer.cast(pid, {:clear_votes, user_id})
   end
@@ -68,6 +72,7 @@ defmodule PointingPoker.Room do
          manager_type: opts.manager_type,
          pid: self()
        },
+       comment: "",
        members: %{},
        show_votes: false,
        clear_time: DateTime.utc_now(),
@@ -103,6 +108,17 @@ defmodule PointingPoker.Room do
 
     bcast_room(new_state)
     {:noreply, new_state, @shutdown_time}
+  end
+
+  @impl GenServer
+  def handle_cast({:comment, user_id, value}, state) do
+    if state.config.manager_type == :voter || state.members[user_id].type == :observer do
+      new_state = %{state | comment: value}
+      bcast_room(new_state)
+      {:noreply, new_state, @shutdown_time}
+    else
+      {:noreply, state, @shutdown_time}
+    end
   end
 
   @impl GenServer
@@ -162,7 +178,8 @@ defmodule PointingPoker.Room do
           members: Map.values(state.members),
           show_votes: state.show_votes,
           stats: stats,
-          me: member
+          me: member,
+          comment: state.comment
         }
       )
     end)

@@ -19,7 +19,8 @@ defmodule PointingPokerWeb.RoomLive do
            room_config: room_config,
            members: [],
            show_votes: false,
-           me: nil
+           me: nil,
+           comment: ""
          )}
     end
   end
@@ -56,6 +57,13 @@ defmodule PointingPokerWeb.RoomLive do
     user_id = socket.assigns[:me].id
 
     :ok = PointingPoker.Room.vote(room_pid, user_id, value)
+    {:noreply, socket}
+  end
+
+  def handle_event("comment", data, socket) do
+    room_pid = socket.assigns[:room_config].pid
+    user_id = socket.assigns[:me].id
+    :ok = PointingPoker.Room.comment(room_pid, user_id, data["comment"])
     {:noreply, socket}
   end
 
@@ -97,12 +105,13 @@ defmodule PointingPokerWeb.RoomLive do
     end
   end
 
-  def handle_info(%{members: members, show_votes: show_votes, stats: stats, me: me}, socket) do
+  def handle_info(%{comment: comment, members: members, show_votes: show_votes, stats: stats, me: me}, socket) do
     {:noreply,
      assign(socket,
        members: members,
        show_votes: show_votes,
        me: me,
+       comment: comment,
        stats: %{
          vote_count: stats.vote_count,
          time_taken:
