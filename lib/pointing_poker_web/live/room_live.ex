@@ -42,11 +42,13 @@ defmodule PointingPokerWeb.RoomLive do
   @impl true
   def handle_event("join", %{"username" => username, "type" => type} = data, socket) do
     username = String.trim(username)
+
     case String.length(username) > 0 do
       true ->
         room_pid = socket.assigns[:room_config].pid
         member = PointingPoker.Room.join(room_pid, username, String.to_existing_atom(type))
         {:noreply, clear_flash(assign(socket, me: member))}
+
       false ->
         {:noreply, put_flash(socket, :error, "Please enter a name!")}
     end
@@ -105,7 +107,10 @@ defmodule PointingPokerWeb.RoomLive do
     end
   end
 
-  def handle_info(%{comment: comment, members: members, show_votes: show_votes, stats: stats, me: me}, socket) do
+  def handle_info(
+        %{comment: comment, members: members, show_votes: show_votes, stats: stats, me: me},
+        socket
+      ) do
     {:noreply,
      assign(socket,
        members: members,

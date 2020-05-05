@@ -17,7 +17,7 @@ defmodule PointingPoker.Application do
       PointingPokerWeb.Endpoint,
       PointingPoker.Room.Supervisor,
       {Registry, keys: :unique, name: Registry.Rooms},
-      {Cluster.Supervisor, [cluster_config(), [name: PointingPoker.ClusterSupervisor]]},
+      {Cluster.Supervisor, [cluster_config(), [name: PointingPoker.ClusterSupervisor]]}
       # Start a worker by calling: PointingPoker.Worker.start_link(arg)
       # {PointingPoker.Worker, arg}
     ]
