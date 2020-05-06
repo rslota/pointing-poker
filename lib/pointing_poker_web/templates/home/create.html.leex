@@ -34,19 +34,22 @@
     </div>
     <div class="row d-flex justify-content-center text-center">
       <div class="col-sm-12">
-        <%= for row <- Enum.chunk_every(Enum.with_index(@enabled_values ++ [:add]), 3) do %>
+        <%= for row <- format_vote_form_fields(@enabled_values) do %>
           <div class="row d-flex justify-content-center">
             <%= for {value, index} <- row do %>
               <div class="col-sm-4">
                 <%= if value == :add do %>
                   <button phx-click="add_value" type="button" class="btn btn-primary">+</button>
                 <%= else %>
-                <div class="input-group mb-1">
-                  <input name="value_<%= index %>" type="text" value="<%= value %>" class="form-control"/>
-                  <div class="input-group-append">
-                    <button type="button" class="btn btn-outline-danger" phx-click="del" value="<%= index %>">X</button>
-                  </div>
-                </div>
+                  <%= if value == :noop do %>
+                  <%= else %>
+                    <div class="input-group mb-1">
+                      <input name="value_<%= index %>" type="text" value="<%= value %>" class="form-control"/>
+                      <div class="input-group-append">
+                        <button type="button" class="btn btn-outline-danger" phx-click="del" value="<%= index %>">X</button>
+                      </div>
+                    </div>
+                  <% end %>
                 <% end %>
               <p/>
               </div>

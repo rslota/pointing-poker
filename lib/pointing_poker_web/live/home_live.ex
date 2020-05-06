@@ -9,7 +9,7 @@ defmodule PointingPokerWeb.HomeLive do
   end
 
   def render(assigns) do
-    Phoenix.View.render(PointingPokerWeb.RoomView, "create.html", assigns)
+    Phoenix.View.render(PointingPokerWeb.HomeView, "create.html", assigns)
   end
 
   @impl true
