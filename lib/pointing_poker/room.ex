@@ -142,7 +142,7 @@ defmodule PointingPoker.Room do
           |> Map.new()
         end)
 
-      new_state = %{new_state | clear_time: DateTime.utc_now()}
+      new_state = %{new_state | clear_time: DateTime.utc_now(), comment: ""}
       bcast_room(new_state)
       {:noreply, new_state, @shutdown_time}
     else
@@ -152,7 +152,13 @@ defmodule PointingPoker.Room do
 
   @impl GenServer
   def handle_info(:timeout, state) do
-    {:stop, :shutdown, state}
+    case map_size(state.members) do
+      0 ->
+        {:stop, :shutdown, state}
+
+      _ ->
+        {:noreply, state, @shutdown_time}
+    end
   end
 
   @impl GenServer
@@ -208,7 +214,7 @@ defmodule PointingPoker.Room do
         ),
       average_vote:
         if length(integer_votes) > 0 do
-          Enum.sum(integer_votes) / length(integer_votes)
+          Float.round(Enum.sum(integer_votes) / length(integer_votes), 2)
         else
           -1
         end

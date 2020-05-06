@@ -40,9 +40,9 @@
               <div class="col-sm-4">
                 <%= if value == :add do %>
                   <button phx-click="add_value" type="button" class="btn btn-primary">+</button>
-                <%= else %>
+                <% else %>
                   <%= if value == :noop do %>
-                  <%= else %>
+                  <% else %>
                     <div class="input-group mb-1">
                       <input name="value_<%= index %>" type="text" value="<%= value %>" class="form-control"/>
                       <div class="input-group-append">

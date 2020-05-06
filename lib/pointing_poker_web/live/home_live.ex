@@ -1,7 +1,7 @@
 defmodule PointingPokerWeb.HomeLive do
   use PointingPokerWeb, :live_view
 
-  @default_values ["0", "0.5", "1", "2", "3", "5", "8", "11", "19"]
+  @default_values ["0", "0.5", "1", "2", "3", "5", "8", "13", "19"]
 
   @impl true
   def mount(params, session, socket) do

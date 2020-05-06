@@ -13,7 +13,7 @@
   </div>
   <br/>
   <div class="row">
-    <div class="col-sm-5 d-flex justify-content-center">
+    <div class="col-sm-5">
       <div class="btn-group-vertical">
         <%= if @me.type == :voter do %>
         <%= for row <- Enum.chunk_every(@room_config.enabled_values ++ ["?"], 3) do %>
@@ -38,9 +38,13 @@
       <tbody>
       <%= for member <- @members do %>
       <%= if member.type == :voter do %>
-      <tr>
+       <tr>
         <td>
-          <%= member.name %>
+        <%= if member.id == @me.id do %>
+        <b><%= member.name %></b>
+        <% else %>
+        <%= member.name %>
+        <% end %>
         </td>
         <td class="text-center">
           <%= if member.vote do %>
@@ -48,9 +52,9 @@
           <% end %>
         </td>
         <td class="text-center">
-          <%= if @show_votes do %>
+          <%= if @show_votes || member.id == @me.id do %>
           <b><%= member.vote %></b>
-          <%= else %>
+          <% else %>
           <span>&#9632;</span>
           <% end %>
         </td>
@@ -99,10 +103,10 @@
   </div>
   <div class="row">
     <div class="col-sm-12">
-    <%= if Map.size(@stats.vote_count) == 1 do %>
+    <%= if map_size(@stats.vote_count) == 1 do %>
       <div class="col-sm-12 text-center"><span class="text-success font-weight-bold">Consensus!</span></div>
-    <%= else %>
-      <%= if Map.size(@stats.vote_count) > 1 do %>
+    <% else %>
+      <%= if map_size(@stats.vote_count) > 1 do %>
       <table class="table-sm table-striped">
         <thead>
           <tr>
