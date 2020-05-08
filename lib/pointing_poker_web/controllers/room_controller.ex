@@ -14,7 +14,7 @@ defmodule PointingPokerWeb.RoomController do
       |> Enum.uniq()
 
     manager_type = String.to_existing_atom(params["manager_type"])
-    {:ok, room_id} = PointingPoker.Room.new_room(enabled_values, manager_type)
+    {:ok, room_id} = PointingPoker.Room.new(enabled_values, manager_type)
     # Create the room
     redirect(conn, to: "/room/#{room_id}")
   end

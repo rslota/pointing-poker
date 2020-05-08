@@ -2,13 +2,15 @@ defmodule PointingPokerWeb.RoomLive do
   use PointingPokerWeb, :live_view
   use Timex
 
+  alias PointingPoker.Room.Utils
+
   @impl true
-  def mount(params, session, socket) do
+  def mount(params, _session, socket) do
     # Check if room exists
     room_id = Map.get(params, "room_id")
 
-    case PointingPoker.Room.find_room(room_id) do
-      {:error, :not_found} ->
+    case PointingPoker.Room.find(room_id) do
+      {:error, %PointingPoker.Error{category: :not_found}} ->
         {:ok, assign(socket, room_config: nil)}
 
       {:ok, room_config} ->
@@ -18,13 +20,14 @@ defmodule PointingPokerWeb.RoomLive do
          assign(socket,
            room_config: room_config,
            members: [],
-           show_votes: false,
+           show_votes?: false,
            me: nil,
            comment: ""
          )}
     end
   end
 
+  @impl true
   def render(%{room_config: nil} = assigns) do
     ~L"""
     Room not found! <a href="/">Go back</a>
@@ -58,7 +61,7 @@ defmodule PointingPokerWeb.RoomLive do
     room_pid = socket.assigns[:room_config].pid
     user_id = socket.assigns[:me].id
 
-    :ok = PointingPoker.Room.vote(room_pid, user_id, value)
+    :ok = PointingPoker.Room.vote(room_pid, user_id, Utils.to_number(value))
     {:noreply, socket}
   end
 
@@ -108,13 +111,13 @@ defmodule PointingPokerWeb.RoomLive do
   end
 
   def handle_info(
-        %{comment: comment, members: members, show_votes: show_votes, stats: stats, me: me},
+        %{comment: comment, members: members, show_votes?: show_votes, stats: stats, me: me},
         socket
       ) do
     {:noreply,
      assign(socket,
        members: members,
-       show_votes: show_votes,
+       show_votes?: show_votes,
        me: me,
        comment: comment,
        stats: %{

@@ -49,7 +49,8 @@ defmodule PointingPoker.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:timex, "~> 3.5"},
       {:syn, "~> 2.1"},
-      {:libcluster, "~> 3.2"}
+      {:libcluster, "~> 3.2"},
+      {:assert_eventually, "~> 0.2"}
     ]
   end
 
@@ -64,7 +65,7 @@ defmodule PointingPoker.MixProject do
       setup: ["deps.get", "ecto.setup", "cmd npm install --prefix assets"],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
-      test: ["ecto.create --quiet", "ecto.migrate", "test"]
+      test: ["test"]
     ]
   end
 end

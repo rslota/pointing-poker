@@ -3,7 +3,7 @@
     <div class="col-sm-5">
     </div>
     <div class="col-sm-7 d-flex justify-content-center">
-      <%= if @me.type == :observer || @room_config.manager_type == :voter do %>
+      <%= if @me.role == :observer || @room_config.manager_type == :voter do %>
         <div class="btn-group btn-group-lg">
           <button phx-click="clear" class="btn btn-danger">Clear votes</button>
           <button phx-click="show" class="btn btn-success">Show votes</button>
@@ -15,7 +15,7 @@
   <div class="row">
     <div class="col-sm-5">
       <div class="btn-group-vertical">
-        <%= if @me.type == :voter do %>
+        <%= if @me.role == :voter do %>
         <%= for row <- Enum.chunk_every(@room_config.enabled_values ++ ["?"], 3) do %>
           <div class="btn-group btn-group-lg">
           <%= for value <- row do %>
@@ -37,7 +37,7 @@
       </thead>
       <tbody>
       <%= for member <- @members do %>
-      <%= if member.type == :voter do %>
+      <%= if member.role == :voter do %>
        <tr>
         <td>
         <%= if member.id == @me.id do %>
@@ -52,7 +52,7 @@
           <% end %>
         </td>
         <td class="text-center">
-          <%= if @show_votes || member.id == @me.id do %>
+          <%= if @show_votes? || member.id == @me.id do %>
           <b><%= member.vote %></b>
           <% else %>
           <span>&#9632;</span>
@@ -71,7 +71,7 @@
     <div class="col-sm-12 form-group">
       <label for="comment">Comment:</label>
       <form phx-change="comment">
-      <%= if @me.type == :observer || @room_config.manager_type == :voter do %>
+      <%= if @me.role == :observer || @room_config.manager_type == :voter do %>
         <textarea class="form-control" rows="5" name="comment"><%= @comment %></textarea>
       <% else %>
         <textarea class="form-control" rows="5" name="comment" readonly><%= @comment %></textarea>
@@ -79,7 +79,7 @@
       </form>
     </div>
   </div>
-  <%= if @show_votes do %>
+  <%= if @show_votes? do %>
   <div class="row">
     <div class="col-sm-4">
       <h5>Statistics</h5>
