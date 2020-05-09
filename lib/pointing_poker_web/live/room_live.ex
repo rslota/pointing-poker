@@ -43,7 +43,7 @@ defmodule PointingPokerWeb.RoomLive do
   end
 
   @impl true
-  def handle_event("join", %{"username" => username, "type" => type} = data, socket) do
+  def handle_event("join", %{"username" => username, "type" => type} = _data, socket) do
     username = String.trim(username)
 
     case String.length(username) > 0 do
@@ -95,7 +95,6 @@ defmodule PointingPokerWeb.RoomLive do
   end
 
   def handle_event(_event, _data, socket) do
-    IO.inspect({_event, _data})
     {:noreply, socket}
   end
 
