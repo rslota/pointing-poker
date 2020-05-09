@@ -4,7 +4,8 @@ defmodule PointingPokerWeb.HomeLive do
   @default_values ["0", "0.5", "1", "2", "3", "5", "8", "13", "19"]
 
   @impl true
-  def mount(_params, _session, socket) do
+  def mount(_params, session, socket) do
+    socket = apply_theme(socket, session)
     {:ok, assign(socket, enabled_values: @default_values)}
   end
 

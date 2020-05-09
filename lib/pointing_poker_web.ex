@@ -47,6 +47,14 @@ defmodule PointingPokerWeb do
         layout: {PointingPokerWeb.LayoutView, "live.html"}
 
       unquote(view_helpers())
+
+      def apply_theme(socket, session) do
+        if session["theme"] do
+          assign(socket, theme: session["theme"])
+        else
+          socket
+        end
+      end
     end
   end
 

@@ -20,6 +20,8 @@ defmodule PointingPokerWeb.Router do
     live "/", HomeLive
     post "/room", RoomController, :create
     live "/room/:room_id", RoomLive
+
+    get "/settings", SettingsController, :set
   end
 
   # Other scopes may use custom stacks.

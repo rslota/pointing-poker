@@ -5,7 +5,9 @@ defmodule PointingPokerWeb.RoomLive do
   alias PointingPoker.Room.Utils
 
   @impl true
-  def mount(params, _session, socket) do
+  def mount(params, session, socket) do
+    socket = apply_theme(socket, session)
+
     # Check if room exists
     room_id = Map.get(params, "room_id")
 

@@ -1,5 +1,4 @@
 defmodule PointingPoker.Room do
-
   alias PointingPoker.Room.{Member, Config, Worker}
 
   @type id() :: String.t()
