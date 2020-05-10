@@ -38,6 +38,10 @@ defmodule PointingPokerWeb.ConnCase do
     #   Ecto.Adapters.SQL.Sandbox.mode(PointingPoker.Repo, {:shared, self()})
     # end
 
-    {:ok, conn: Phoenix.ConnTest.build_conn()}
+    {:ok,
+     conn: Phoenix.ConnTest.build_conn(),
+     conn1: Phoenix.ConnTest.build_conn(),
+     conn2: Phoenix.ConnTest.build_conn(),
+     conn3: Phoenix.ConnTest.build_conn()}
   end
 end

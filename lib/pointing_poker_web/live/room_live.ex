@@ -45,17 +45,20 @@ defmodule PointingPokerWeb.RoomLive do
   end
 
   @impl true
-  def handle_event("join", %{"username" => username, "type" => type} = _data, socket) do
+  def handle_event("join", %{"username" => username, "role" => role} = _data, socket) do
     username = String.trim(username)
 
-    case String.length(username) > 0 do
-      true ->
-        room_pid = socket.assigns[:room_config].pid
-        member = PointingPoker.Room.join(room_pid, username, String.to_existing_atom(type))
-        {:noreply, clear_flash(assign(socket, me: member))}
-
-      false ->
+    with {:username, true} <- {:username, String.length(username) > 0},
+         {:role, true} <- {:role, role in ["voter", "observer"]} do
+      room_pid = socket.assigns[:room_config].pid
+      member = PointingPoker.Room.join(room_pid, username, String.to_existing_atom(role))
+      {:noreply, clear_flash(assign(socket, me: member))}
+    else
+      {:username, false} ->
         {:noreply, put_flash(socket, :error, "Please enter a name!")}
+
+      {:role, false} ->
+        {:noreply, put_flash(socket, :error, "Please enter a valid role!")}
     end
   end
 
@@ -63,7 +66,12 @@ defmodule PointingPokerWeb.RoomLive do
     room_pid = socket.assigns[:room_config].pid
     user_id = socket.assigns[:me].id
 
-    :ok = PointingPoker.Room.vote(room_pid, user_id, Utils.to_number(value))
+    if value == "?" do
+      :ok = PointingPoker.Room.vote(room_pid, user_id, "?")
+    else
+      :ok = PointingPoker.Room.vote(room_pid, user_id, Utils.to_number(value))
+    end
+
     {:noreply, socket}
   end
 
