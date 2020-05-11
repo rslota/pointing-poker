@@ -6,7 +6,7 @@
       <div class="input-group-prepend">
         <span class="input-group-text" id="basic-addon1">Name</span>
       </div>
-      <input id="username" class="form-control" type="text" name="username" placeholder="Severus Snape">
+      <input id="username-input" onChange="localStorage.setItem('username', this.value);" id="username" class="form-control" type="text" name="username" placeholder="Severus Snape">
     </div>
   </div>
 </div>
