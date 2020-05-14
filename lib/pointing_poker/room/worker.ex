@@ -40,10 +40,9 @@ defmodule PointingPoker.Room.Worker do
 
   @impl GenServer
   def handle_call({:join, username, role, member_pid}, _from, state) do
-    with user_id = Base.encode64(:crypto.strong_rand_bytes(18)),
-         true <- Enum.member?([:voter, :observer], role),
+    with true <- Enum.member?([:voter, :observer], role),
+         user_id = Process.monitor(member_pid),
          member = %Member{id: user_id, name: username, pid: member_pid, role: role} do
-      Process.monitor(member_pid)
       new_state = update_in(state.members, &Map.put(&1, user_id, member))
       bcast_room(new_state)
       {:reply, member, new_state, @shutdown_time}
@@ -129,12 +128,10 @@ defmodule PointingPoker.Room.Worker do
   end
 
   @impl GenServer
-  def handle_info({:DOWN, _ref, :process, _pid, _reason}, state) do
+  def handle_info({:DOWN, ref, :process, _pid, _reason}, state) do
     new_state =
       update_in(state.members, fn members ->
-        members
-        |> Enum.filter(fn {_, member} -> Process.alive?(member.pid) end)
-        |> Map.new()
+        Map.delete(members, ref)
       end)
 
     bcast_room(new_state)

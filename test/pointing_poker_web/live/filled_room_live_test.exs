@@ -13,6 +13,32 @@ defmodule PointingPokerWeb.FilledRoomLiveTest do
       join_all(room)
     end
 
+    test "users can see someone leaving", %{voters: voters, observers: observers} do
+      for user <- Map.values(voters) ++ Map.values(observers) do
+        for i <- 1..9 do
+          assert user |> element("tr[name='Voter #{i}']") |> has_element?()
+        end
+      end
+
+      voter_dc = voters[5]
+      Process.flag(:trap_exit, true)
+      Process.exit(voter_dc.pid, :crash)
+
+      for user <- Map.values(voters) ++ Map.values(observers) do
+        if user.pid != voter_dc.pid do
+          for i <- 1..4 do
+            assert user |> element("tr[name='Voter #{i}']") |> has_element?()
+          end
+
+          eventually(refute user |> element("tr[name='Voter 5']") |> has_element?())
+
+          for i <- 6..9 do
+            assert user |> element("tr[name='Voter #{i}']") |> has_element?()
+          end
+        end
+      end
+    end
+
     test "voters cant vote with invalid vote", %{voters: voters, observers: observers} do
       render_click(voters[1], "vote", %{"value" => "58"})
 
@@ -400,6 +426,32 @@ defmodule PointingPokerWeb.FilledRoomLiveTest do
       {:ok, room} = Room.find(room_id)
 
       join_all(room)
+    end
+
+    test "users can see someone leaving", %{voters: voters, observers: observers} do
+      for user <- Map.values(voters) ++ Map.values(observers) do
+        for i <- 1..9 do
+          assert user |> element("tr[name='Voter #{i}']") |> has_element?()
+        end
+      end
+
+      voter_dc = voters[5]
+      Process.flag(:trap_exit, true)
+      Process.exit(voter_dc.pid, :crash)
+
+      for user <- Map.values(voters) ++ Map.values(observers) do
+        if user.pid != voter_dc.pid do
+          for i <- 1..4 do
+            assert user |> element("tr[name='Voter #{i}']") |> has_element?()
+          end
+
+          eventually(refute user |> element("tr[name='Voter 5']") |> has_element?())
+
+          for i <- 6..9 do
+            assert user |> element("tr[name='Voter #{i}']") |> has_element?()
+          end
+        end
+      end
     end
 
     test "observers can comment", %{voters: voters, observers: observers} do
