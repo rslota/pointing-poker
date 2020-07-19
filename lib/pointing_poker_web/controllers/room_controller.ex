@@ -1,6 +1,5 @@
 defmodule PointingPokerWeb.RoomController do
   use PointingPokerWeb, :controller
-  import Phoenix.LiveView.Controller
 
   def create(conn, params) do
     enabled_values =

@@ -1,6 +1,5 @@
 defmodule PointingPokerWeb.SettingsController do
   use PointingPokerWeb, :controller
-  import Phoenix.LiveView.Controller
 
   def set(conn, params) do
     if params["theme"] in ["dark", "light"] do

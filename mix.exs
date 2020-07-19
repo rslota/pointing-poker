@@ -50,7 +50,8 @@ defmodule PointingPoker.MixProject do
       {:timex, "~> 3.5"},
       {:syn, "~> 2.1"},
       {:libcluster, "~> 3.2"},
-      {:assert_eventually, "~> 0.2"}
+      {:assert_eventually, "~> 0.2"},
+      {:basic_auth, "~> 2.2.2"}
     ]
   end
 

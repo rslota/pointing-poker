@@ -9,5 +9,5 @@ defmodule PointingPoker.Room.Utils do
     end
   end
 
-  def to_number(value), do: :error
+  def to_number(_value), do: :error
 end
